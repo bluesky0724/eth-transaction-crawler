@@ -80,11 +80,31 @@ export default function TransactionTable(props: TransactionTablePropType) {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [timestampOrder, setTimeStampOrder] = useState<"asc" | "desc">("desc");
+  const [loading, setLoading] = useState(false);
 
   function validateEthereumAddress(address: string) {
     const isAddress = ethers.isAddress(address);
     return isAddress;
   }
+  const handleScroll = async (event: React.UIEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLDivElement;
+    // Check if the user has reached the bottom of the table
+    if (target.scrollTop + target.offsetHeight === target.scrollHeight) {
+      if (!loading) {
+        setLoading(true);
+        setPage((prevPage) => prevPage + 1);
+        const response = await fetchTransactionData(
+          props.walletAddress,
+          props.blockNumber,
+          timestampOrder,
+          page,
+          limit
+        );
+        setData([...data, ...response]);
+        setLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -104,27 +124,24 @@ export default function TransactionTable(props: TransactionTablePropType) {
         setData(response);
       }
     })();
-  }, [props.walletAddress, props.blockNumber, page, limit, timestampOrder]);
+  }, [props.walletAddress, props.blockNumber, timestampOrder]);
 
   return (
-    <CustomTable
-      title="Ethereum Transactions"
-      columns={columns as any}
-      data={data}
-      paginationTotalRows={100}
-      pagination
-      paginationServer
-      paginationDefaultPage={page}
-      paginationPerPage={limit}
-      onSort={(col, sortDirection) => {
-        setPage(1);
-        if (col.name === "Time Stamp") setTimeStampOrder(sortDirection);
-      }}
-      onChangePage={(newpage) => {
-        setPage(newpage);
-      }}
-      onChangeRowsPerPage={(newlimit) => setLimit(newlimit)}
-    />
+    <div
+      style={{ maxHeight: "70vh", overflowY: "auto" }}
+      onScroll={handleScroll}
+    >
+      <CustomTable
+        title="Ethereum Transactions"
+        columns={columns as any}
+        data={data}
+        onSort={(col, sortDirection) => {
+          setPage(1);
+          if (col.name === "Time Stamp") setTimeStampOrder(sortDirection);
+        }}
+        highlightOnHover
+      />
+    </div>
   );
 }
 
