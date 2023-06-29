@@ -24,7 +24,7 @@ $ git clone https://github.com/bluesky0724/eth-transaction-crawler.git
 ```
 
 Copy .env.example and make new env file .env
-We need [`Etherscan API Key`](https://etherscan.io/apis) and [`Alchemy API Key`](https://www.alchemy.com/)
+We need [`Etherscan API Key`](https://etherscan.io/apis) and [`Alchemy API Key`](https://www.alchemy.com/). You can generate it or just use example API key.
 
 ```bash
 $ cp .env.example .env
@@ -41,3 +41,4 @@ Run it
 $ npm start # or yarn start
 ```
 
+Navigate to [`localhost:3000`](http://localhost:3000) to see the app.
